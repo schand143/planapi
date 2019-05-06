@@ -6,45 +6,90 @@ app = Flask(__name__)
 app.config['MONGO_DBNAME'] = 'databasename'
 app.config['MONGO_URI'] = 'mongodb://username:password@hostname:port/databasename'
 
-mongo = PyMongo(app)
+db = PyMongo(app)
+# Init ma
 
 @app.route('/framework', methods=['GET'])
-def get_all_frameworks():
-    framework = mongo.db.framework 
 
-    output = []
+# Product Class/Model
+class Product(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(100), unique=True)
+  description = db.Column(db.String(200))
+  price = db.Column(db.Float)
+  qty = db.Column(db.Integer)
 
-    for q in framework.find():
-        output.append({'name' : q['name'], 'language' : q['language']})
+  def __init__(self, name, description, price, qty):
+    self.name = name
+    self.description = description
+    self.price = price
+    self.qty = qty
 
-    return jsonify({'result' : output})
+# Product Schema
+class ProductSchema(ma.Schema):
+  class Meta:
+    fields = ('id', 'name', 'description', 'price', 'qty')
 
-@app.route('/framework/<name>', methods=['GET'])
-def get_one_framework(name):
-    framework = mongo.db.framework
+# Init schema
+product_schema = ProductSchema(strict=True)
+products_schema = ProductSchema(many=True, strict=True)
 
-    q = framework.find_one({'name' : name})
+# Create a Product
+@app.route('/product', methods=['POST'])
+def add_product():
+  name = request.json['name']
+  description = request.json['description']
+  price = request.json['price']
+  qty = request.json['qty']
 
-    if q:
-        output = {'name' : q['name'], 'language' : q['language']}
-    else:
-        output = 'No results found'
+  new_product = Product(name, description, price, qty)
 
-    return jsonify({'result' : output})
+  db.session.add(new_product)
+  db.session.commit()
 
-@app.route('/framework', methods=['POST'])
-def add_framework():
-    framework = mongo.db.framework 
+  return product_schema.jsonify(new_product)
 
-    name = request.json['name']
-    language = request.json['language']
+# Get All Products
+@app.route('/product', methods=['GET'])
+def get_products():
+  all_products = Product.query.all()
+  result = products_schema.dump(all_products)
+  return jsonify(result.data)
 
-    framework_id = framework.insert({'name' : name, 'language' : language})
-    new_framework = framework.find_one({'_id' : framework_id})
+# Get Single Products
+@app.route('/product/<id>', methods=['GET'])
+def get_product(id):
+  product = Product.query.get(id)
+  return product_schema.jsonify(product)
 
-    output = {'name' : new_framework['name'], 'language' : new_framework['language']}
+# Update a Product
+@app.route('/product/<id>', methods=['PUT'])
+def update_product(id):
+  product = Product.query.get(id)
 
-    return jsonify({'result' : output})
+  name = request.json['name']
+  description = request.json['description']
+  price = request.json['price']
+  qty = request.json['qty']
+
+  product.name = name
+  product.description = description
+  product.price = price
+  product.qty = qty
+
+  db.session.commit()
+
+  return product_schema.jsonify(product)
+
+# Delete Product
+@app.route('/product/<id>', methods=['DELETE'])
+def delete_product(id):
+  product = Product.query.get(id)
+  db.session.delete(product)
+  db.session.commit()
+
+  return product_schema.jsonify(product)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
