@@ -1,6 +1,11 @@
 # planapi
 Plan pricing using python  , mongodb , Flack
 
+#Install Dependancis
+
+1) pip install flask
+2) pip install pymongo
+
 
 #Here are the tools we’ll need to build our APIs:
 
