@@ -26,7 +26,7 @@ mongodbimport --jsonArray --db "Your Database Name ex: plan"  --collections "You
 
 
 #Create Plan
-We will create an endpoint POST /api/v1/users which takes in a JSON object consisting of the user details like price, plan , Services as JSON in the request body. We could also design the endpoint to take an array of users.
+We will create plan user details like price, plan , Services as JSON in the request body. We could also design the endpoint to take an array of users.
 
 #Insert Plan
 
