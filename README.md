@@ -22,5 +22,7 @@ We will create an endpoint POST /api/v1/users which takes in a JSON object consi
 
 #Update Plan
 
+#Read Plan
+
 #Delete Plan
 
