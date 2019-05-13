@@ -34,8 +34,5 @@ We will create an endpoint POST /api/v1/users which takes in a JSON object consi
 
 #Read Plan
 
-
-#Thank you.
-
 #Delete Plan
 
